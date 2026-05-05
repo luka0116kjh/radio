@@ -53,7 +53,7 @@ class RadioHandler(SimpleHTTPRequestHandler):
             return
 
         ydl_options = {
-            "format": "bestaudio/best",
+            "format": "bestaudio[ext=m4a]/bestaudio[acodec^=mp4a]/bestaudio/best",
             "quiet": True,
             "no_warnings": True,
             "noplaylist": True,
@@ -63,6 +63,7 @@ class RadioHandler(SimpleHTTPRequestHandler):
             with yt_dlp.YoutubeDL(ydl_options) as ydl:
                 info = ydl.extract_info(youtube_url, download=False)
                 audio_url = info.get("url")
+                selected_format = info.get("ext") or info.get("acodec") or "unknown"
 
                 if not audio_url and info.get("formats"):
                     audio_formats = [
@@ -70,8 +71,19 @@ class RadioHandler(SimpleHTTPRequestHandler):
                         for item in info["formats"]
                         if item.get("url") and item.get("acodec") != "none"
                     ]
-                    if audio_formats:
-                        audio_url = audio_formats[-1]["url"]
+                    m4a_formats = [
+                        item
+                        for item in audio_formats
+                        if item.get("ext") == "m4a" or str(item.get("acodec", "")).startswith("mp4a")
+                    ]
+                    if m4a_formats:
+                        selected = m4a_formats[-1]
+                        audio_url = selected["url"]
+                        selected_format = selected.get("ext") or selected.get("acodec") or "m4a"
+                    elif audio_formats:
+                        selected = audio_formats[-1]
+                        audio_url = selected["url"]
+                        selected_format = selected.get("ext") or selected.get("acodec") or "unknown"
 
                 if not audio_url:
                     self.send_json({"error": "Could not find an audio stream."}, status=500)
@@ -82,6 +94,7 @@ class RadioHandler(SimpleHTTPRequestHandler):
                         "audioUrl": audio_url,
                         "title": info.get("title") or "YouTube Audio",
                         "duration": info.get("duration"),
+                        "format": selected_format,
                     }
                 )
         except Exception as error:

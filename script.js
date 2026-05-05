@@ -47,6 +47,7 @@ let currentStation = stations[2];
 let favorites = JSON.parse(localStorage.getItem("radioFavorites") || "[]");
 let activeYouTubeUrl = "";
 let activeYouTubeTitle = "";
+let pendingPlayback = false;
 
 function makeBars() {
   for (let i = 0; i < 42; i += 1) {
@@ -150,6 +151,7 @@ async function playYouTubeAudio(url) {
   audio.removeAttribute("src");
   audio.load();
   activeYouTubeUrl = url;
+  pendingPlayback = false;
   youtubeHost.innerHTML = "";
   radio.classList.add("is-playing");
   statusText.textContent = "Loading YouTube audio through Python...";
@@ -173,6 +175,7 @@ async function playYouTubeAudio(url) {
 
     activeYouTubeTitle = data.title || "YouTube Audio";
     audio.src = data.audioUrl;
+    audio.load();
     currentStation = {
       freq: Number(tuner.value),
       title: activeYouTubeTitle,
@@ -180,13 +183,21 @@ async function playYouTubeAudio(url) {
       art: "YT"
     };
     trackTitle.textContent = currentStation.title;
-    trackMeta.textContent = "YouTube audio loaded by Python";
+    trackMeta.textContent = `YouTube audio loaded by Python • ${data.format || "audio"}`;
     albumArt.textContent = currentStation.art;
     favoriteBtn.classList.toggle("active", favorites.includes(stationKey(currentStation)));
 
     await audio.play();
+    pendingPlayback = false;
     statusText.textContent = `LIVE NOW: ${currentStation.title}`;
   } catch (error) {
+    if (audio.src && error.name === "NotAllowedError") {
+      pendingPlayback = true;
+      radio.classList.remove("is-playing");
+      statusText.textContent = "Audio is ready. Tap PLAY once more to start.";
+      return;
+    }
+
     radio.classList.remove("is-playing");
     statusText.textContent = error.message.includes("Failed to fetch")
       ? "Start the Python server first: python server.py"
@@ -228,7 +239,15 @@ playBtn.addEventListener("click", async () => {
     if (audio.src) {
       try {
         await audio.play();
+        pendingPlayback = false;
+        radio.classList.add("is-playing");
+        statusText.textContent = `LIVE NOW: ${currentStation.title}`;
       } catch (error) {
+        if (pendingPlayback || error.name === "NotAllowedError") {
+          statusText.textContent = "Playback was blocked. Tap PLAY again or try another video.";
+          return;
+        }
+
         await playYouTubeAudio(activeYouTubeUrl);
       }
       return;
