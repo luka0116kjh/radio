@@ -50,6 +50,16 @@ http://127.0.0.1:8000/
 
 YouTube 오디오 기능은 반드시 이 서버 주소로 접속해야 동작합니다. `index.html`을 파일로 직접 열면 `/api/youtube-audio` API를 사용할 수 없습니다.
 
+## GitHub Pages
+
+GitHub Pages는 정적 파일만 호스팅하므로 `server.py`를 실행할 수 없습니다. 따라서 아래 주소에서는 화면은 열리지만 YouTube 링크의 `LINK PLAY` 기능은 동작하지 않습니다.
+
+```txt
+https://luka0116kjh.github.io/radio/
+```
+
+YouTube 오디오 기능까지 사용하려면 컴퓨터에서 `python server.py`를 실행한 뒤, 로컬 서버 주소로 접속해야 합니다.
+
 ## Open On Phone
 
 스마트폰에서도 같은 Wi-Fi에 연결되어 있다면 접속할 수 있습니다.

@@ -49,6 +49,16 @@ let activeYouTubeUrl = "";
 let activeYouTubeTitle = "";
 let pendingPlayback = false;
 
+function isGitHubPages() {
+  return window.location.hostname.endsWith("github.io");
+}
+
+function youtubeApiUnavailableMessage() {
+  return isGitHubPages()
+    ? "GitHub Pages cannot run the Python YouTube API. Use python server.py and open the local server address."
+    : "The YouTube API did not return JSON. Start or restart python server.py.";
+}
+
 function makeBars() {
   for (let i = 0; i < 42; i += 1) {
     const bar = document.createElement("span");
@@ -167,6 +177,12 @@ async function playYouTubeAudio(url) {
       },
       body: JSON.stringify({ url })
     });
+
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      throw new Error(youtubeApiUnavailableMessage());
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
