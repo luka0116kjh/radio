@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alastor's Radio 99.6 FM</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="studio">
+    <section class="layout">
+      <article class="radio" id="radio">
+        <div class="brand-screen">
+          <h1>Alastor's Radio 99.6 FM</h1>
+          <p class="on-air" id="statusText">ON AIR: The Midnight Broadcast</p>
+        </div>
+
+        <div class="dial-row">
+          <div class="album-wrap" aria-label="?꾩옱 ?ъ깮 以묒씤 ?⑤쾾 ?먯폆">
+            <div class="album-art" id="albumArt">99.6</div>
+          </div>
+
+          <div class="controls">
+            <div class="station-panel">
+              <p class="track-title" id="trackTitle">Velvet Static Cafe</p>
+              <p class="track-meta" id="trackMeta">lofi jazz 쨌 warm radio mix 쨌 vinyl noise</p>
+            </div>
+
+            <input class="tuner" id="tuner" type="range" min="88" max="108" value="99.6" step="0.1" aria-label="二쇳뙆??議곗젅">
+
+            <div class="button-row">
+              <button id="playBtn" type="button">PLAY</button>
+              <button id="stopBtn" type="button">STOP</button>
+              <button class="favorite" id="favoriteBtn" type="button">BOOKMARK</button>
+              <label class="file-label" for="audioUpload">UPLOAD</label>
+              <input id="audioUpload" type="file" accept="audio/*">
+            </div>
+
+            <div class="url-row">
+              <input id="mediaUrl" type="url" placeholder="YouTube or GitHub audio URL">
+              <button id="loadUrlBtn" class="ghost" type="button">LINK PLAY</button>
+            </div>
+          </div>
+
+          <div class="tube-box" aria-hidden="true">
+            <div class="tube"></div>
+          </div>
+        </div>
+
+        <div class="visualizer" id="visualizer" aria-hidden="true"></div>
+        <div class="desk"></div>
+        <div class="youtube-audio-host" id="youtubeHost" aria-hidden="true"></div>
+        <audio id="audio" preload="metadata"></audio>
+      </article>
+
+      <aside class="side">
+        <section class="panel">
+          <h2>AI Music Prompt</h2>
+          <div class="panel-content">
+            <p class="prompt-box"><strong>EN</strong><br>Warm lofi jazz radio station background music, cozy late-night cafe mood, gentle piano chords, soft acoustic guitar, smoky saxophone melodies, clean radio mix sound with subtle vinyl noise and light static, intimate vintage broadcast atmosphere, smooth 5-minute instrumental loop.</p>
+            <p class="prompt-box"><strong>KR</strong><br>?곕쑜??濡쒗뙆???ъ쫰 ?쇰뵒??諛⑹넚援?諛곌꼍 ?뚯븙, ??? 諛?移댄럹泥섎읆 ?몄븞?섍퀬 媛먯꽦?곸씤 遺꾩쐞湲? 遺?쒕윭???쇱븘??肄붾뱶, ?붿옍???댁퓼?ㅽ떛 湲고?, ?ㅻえ?ㅽ븳 ?됱냼??硫쒕줈?? 源⑤걮???쇰뵒??誘뱀뒪 ?ъ슫?쒖? ?쎄컙??諛붿씠???몄씠利?諛??ㅽ깭?? 鍮덊떚吏 諛⑹넚 媛먯꽦??5遺??몄뒪?몃（硫섑꽭 猷⑦봽.</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>5 Minute Radio Script</h2>
+          <div class="panel-content script">
+            <p><strong>?꾨줈洹몃옩:</strong> ?쒕갇??踰⑤껙 二쇳뙆??/p>
+            <p>?щ윭遺? ?ш린??99.6 FM. ?섎（???뚯쓬??議곌툑????븘吏???쒓컙, DJ ?쇱삩?낅땲?? 吏湲??먮Ⅴ??怨≪? ?곕쑜???쇱븘?몄? ?됱냼?곗씠 泥쒖쿇??遺덉쓣 耳쒕뒗 濡쒗뙆???ъ쫰 ?섎쾭?덉슂.</p>
+            <p>?ㅻ뒛 ?꾩갑???ъ뿰? ?닿렐湲몃쭏??媛숈? 怨⑤ぉ 移댄럹 ?욎쓣 吏?섏튇?ㅻ뒗 誘쇱꽌 ???댁빞湲곗엯?덈떎. ?ㅼ뼱媛 蹂??곸? ?놁?留? 李쎄? 議곕챸怨??붿옍???뚯븙 ?뚮Ц???댁긽?섍쾶 ?꾨줈瑜?諛쏅뒗?ㅺ퀬 ?섏뀲?댁슂.</p>
+            <p>洹몃옒???ㅻ뒛??異붿쿇怨≪? <em>Midnight Cafe Window</em>?낅땲?? 臾몄쓣 ?댁? ?딆븘??留덉쓬??癒쇱? ?ъ뼱 媛??諛? 洹몃윴 ?λ㈃?????댁슱由щ뒗 怨≪씠嫄곕뱺??</p>
+            <p>誘쇱꽌 ?? ?몄젨媛 洹?移댄럹???ㅼ뼱媛寃??쒕떎硫??쒖씪 援ъ꽍?먮━?먯꽌 媛??泥쒖쿇??留덉떎 ???덈뒗 ?뚮즺瑜?怨⑤씪 蹂댁꽭?? ?ㅻ뒛 諛ㅻ룄 ?щ윭遺꾩쓽 ?묒? 遺덈튆???묒썝?⑸땲?? ?ш린???쒕갇??踰⑤껙 二쇳뙆?섏??듬땲??</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Bookmarks</h2>
+          <div class="panel-content">
+            <span id="bookmarkHint">?꾩옱 諛⑹넚??利먭꺼李얘린??異붽???蹂댁꽭??</span>
+            <ul class="favorites-list" id="favoritesList"></ul>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
