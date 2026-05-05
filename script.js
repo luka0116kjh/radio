@@ -2,25 +2,25 @@ const stations = [
   {
     freq: 88.7,
     title: "Rainy Window Piano",
-    meta: "piano jazz 쨌 rainy cafe 쨌 soft static",
+    meta: "piano jazz • rainy cafe • soft static",
     art: "RW"
   },
   {
     freq: 94.3,
     title: "Neon City Pop Hour",
-    meta: "80s city pop 쨌 night drive 쨌 clean radio mix",
+    meta: "80s city pop • night drive • clean radio mix",
     art: "NC"
   },
   {
     freq: 99.6,
     title: "Velvet Static Cafe",
-    meta: "lofi jazz 쨌 warm radio mix 쨌 vinyl noise",
+    meta: "lofi jazz • warm radio mix • vinyl noise",
     art: "99.6"
   },
   {
     freq: 104.8,
     title: "Vintage Sax Broadcast",
-    meta: "smoky saxophone 쨌 acoustic guitar 쨌 late night",
+    meta: "smoky saxophone • acoustic guitar • late night",
     art: "VS"
   }
 ];
@@ -46,6 +46,7 @@ const bookmarkHint = document.getElementById("bookmarkHint");
 let currentStation = stations[2];
 let favorites = JSON.parse(localStorage.getItem("radioFavorites") || "[]");
 let activeYouTubeUrl = "";
+let activeYouTubeTitle = "";
 
 function makeBars() {
   for (let i = 0; i < 42; i += 1) {
@@ -70,7 +71,7 @@ function stationKey(station) {
 function renderStation(station) {
   currentStation = station;
   trackTitle.textContent = station.title;
-  trackMeta.textContent = `${station.freq.toFixed(1)} FM 쨌 ${station.meta}`;
+  trackMeta.textContent = `${station.freq.toFixed(1)} FM • ${station.meta}`;
   albumArt.textContent = station.art;
   statusText.textContent = `ON AIR: ${station.title}`;
   favoriteBtn.classList.toggle("active", favorites.includes(stationKey(station)));
@@ -135,9 +136,10 @@ function toGitHubRawUrl(url) {
 function stopYouTube() {
   youtubeHost.innerHTML = "";
   activeYouTubeUrl = "";
+  activeYouTubeTitle = "";
 }
 
-function playYouTubeAudio(url) {
+async function playYouTubeAudio(url) {
   const videoId = extractYouTubeId(url);
   if (!videoId) {
     statusText.textContent = "YouTube link could not be read.";
@@ -149,25 +151,47 @@ function playYouTubeAudio(url) {
   audio.load();
   activeYouTubeUrl = url;
   youtubeHost.innerHTML = "";
-
-  const iframe = document.createElement("iframe");
-  iframe.allow = "autoplay; encrypted-media";
-  iframe.title = "YouTube audio source";
-  iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&controls=0&modestbranding=1`;
-  youtubeHost.appendChild(iframe);
-
-  currentStation = {
-    freq: Number(tuner.value),
-    title: "YouTube Voice Audio",
-    meta: "youtube link audio",
-    art: "YT"
-  };
-  trackTitle.textContent = currentStation.title;
-  trackMeta.textContent = "YouTube link loaded 쨌 video is minimized";
-  albumArt.textContent = currentStation.art;
-  statusText.textContent = "LIVE NOW: YouTube audio";
   radio.classList.add("is-playing");
-  favoriteBtn.classList.toggle("active", favorites.includes(stationKey(currentStation)));
+  statusText.textContent = "Loading YouTube audio through Python...";
+  trackTitle.textContent = activeYouTubeTitle || "YouTube Audio";
+  trackMeta.textContent = "Python server is extracting the audio stream";
+  albumArt.textContent = "YT";
+
+  try {
+    const response = await fetch("/api/youtube-audio", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url })
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "YouTube audio could not be loaded.");
+    }
+
+    activeYouTubeTitle = data.title || "YouTube Audio";
+    audio.src = data.audioUrl;
+    currentStation = {
+      freq: Number(tuner.value),
+      title: activeYouTubeTitle,
+      meta: "youtube audio stream",
+      art: "YT"
+    };
+    trackTitle.textContent = currentStation.title;
+    trackMeta.textContent = "YouTube audio loaded by Python";
+    albumArt.textContent = currentStation.art;
+    favoriteBtn.classList.toggle("active", favorites.includes(stationKey(currentStation)));
+
+    await audio.play();
+    statusText.textContent = `LIVE NOW: ${currentStation.title}`;
+  } catch (error) {
+    radio.classList.remove("is-playing");
+    statusText.textContent = error.message.includes("Failed to fetch")
+      ? "Start the Python server first: python server.py"
+      : error.message;
+  }
 }
 
 async function playExternalAudio(url) {
@@ -201,7 +225,16 @@ playBtn.addEventListener("click", async () => {
   statusText.textContent = `LIVE NOW: ${currentStation.title}`;
 
   if (activeYouTubeUrl) {
-    playYouTubeAudio(activeYouTubeUrl);
+    if (audio.src) {
+      try {
+        await audio.play();
+      } catch (error) {
+        await playYouTubeAudio(activeYouTubeUrl);
+      }
+      return;
+    }
+
+    await playYouTubeAudio(activeYouTubeUrl);
     return;
   }
 
@@ -209,7 +242,7 @@ playBtn.addEventListener("click", async () => {
     try {
       await audio.play();
     } catch (error) {
-      statusText.textContent = "UPLOAD???뚯븙???ㅼ떆 ?ъ깮??二쇱꽭??";
+      statusText.textContent = "업로드한 음악을 다시 재생해 주세요.";
     }
   }
 });
@@ -242,9 +275,9 @@ audioUpload.addEventListener("change", () => {
   stopYouTube();
   audio.src = URL.createObjectURL(file);
   trackTitle.textContent = file.name.replace(/\.[^/.]+$/, "");
-  trackMeta.textContent = "uploaded background music 쨌 local file";
+  trackMeta.textContent = "uploaded background music • local file";
   albumArt.textContent = "LOCAL";
-  statusText.textContent = "?낅줈?쒗븳 諛곌꼍?뚯븙??以鍮꾨릺?덉뒿?덈떎.";
+  statusText.textContent = "업로드한 배경음악이 준비되었습니다.";
   currentStation = {
     freq: Number(tuner.value),
     title: trackTitle.textContent,
@@ -253,7 +286,7 @@ audioUpload.addEventListener("change", () => {
   };
 });
 
-loadUrlBtn.addEventListener("click", () => {
+loadUrlBtn.addEventListener("click", async () => {
   const url = mediaUrl.value.trim();
   if (!url) {
     statusText.textContent = "Paste a YouTube or GitHub audio URL first.";
@@ -261,7 +294,7 @@ loadUrlBtn.addEventListener("click", () => {
   }
 
   if (extractYouTubeId(url)) {
-    playYouTubeAudio(url);
+    await playYouTubeAudio(url);
     return;
   }
 
